@@ -1,0 +1,12 @@
+{
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": [
+		"local>CPS-IT/renovate-config"
+	],
+	"assignees": [
+		"eliashaeussler"
+	],
+	"constraints": {
+		"php": "8.2.*"
+	}
+}
