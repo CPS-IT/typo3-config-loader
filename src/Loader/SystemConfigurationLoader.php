@@ -49,7 +49,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * == 1. Context specific loader:
  * Loads configuration based on the current TYPO3 application context. The
  * configuration is located in PHP files within the main context configuration
- * path ({@see System::CONTEXT_CONFIGURATION_PATH}). In order to ease naming,
+ * path ({@see self::CONTEXT_CONFIGURATION_PATH}). In order to ease naming,
  * the configuration files follow the application context, e.g. when application
  * context `Production/Staging` is active, a file `Staging.php` in sub-directory
  * `Production` is located.
@@ -64,8 +64,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * be prefixed by `TYPO3_` in order to be respected by this loader.
  *
  * All loaders provide configuration for `$GLOBALS['TYPO3_CONF_VARS']`. Additionally,
- * all configuration within {@see System::BASE_CONFIG_PATH} is transformed to
- * environment variables, prefixed by {@see System::ENV_PREFIX}.
+ * all configuration within {@see self::BASE_CONFIG_PATH} is transformed to
+ * environment variables, prefixed by {@see self::ENV_PREFIX}.
  *
  * Example configuration (YAML):
  *
@@ -80,7 +80,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @author Elias Häußler <e.haeussler@familie-redlich.de>
  * @license GPL-3.0-or-later
  */
-final readonly class System implements CacheableConfigurationLoader
+final readonly class SystemConfigurationLoader implements CacheableConfigurationLoader
 {
     use EnvironmentCreator;
 
@@ -118,9 +118,9 @@ final readonly class System implements CacheableConfigurationLoader
     /**
      * Load cached TYPO3 system configuration and apply it to the global configuration.
      *
-     * This is a cached version of {@link System::load()}.
+     * This is a cached version of {@link self::load()}.
      *
-     * @see System::load()
+     * @see self::load()
      */
     public function loadCached(): void
     {
@@ -297,7 +297,7 @@ final readonly class System implements CacheableConfigurationLoader
      * Get reader for configuration from env file.
      *
      * Initializes and returns a configuration reader providing configuration
-     * from a global env file provided by {@link System::getEnvFilePath()}. In
+     * from a global env file provided by {@link self::getEnvFilePath()}. In
      * case the env file is not configured, this method returns NULL.
      *
      * @return ConfigReaderInterface|null Reader for configuration provided by env file, if available, NULL otherwise

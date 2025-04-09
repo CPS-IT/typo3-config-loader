@@ -59,7 +59,7 @@ use TYPO3\CMS\Core\Utility\Exception\MissingArrayPathException;
  * @author Elias Häußler <e.haeussler@familie-redlich.de>
  * @license GPL-3.0-or-later
  */
-final readonly class Solr implements ConfigurationLoader
+final readonly class SolrConfigurationLoader implements ConfigurationLoader
 {
     use EnvironmentCreator;
 

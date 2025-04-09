@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace CPSIT\Typo3ConfigLoader\Tests\Unit\Loader;
 
-use CPSIT\Typo3ConfigLoader\Loader\System;
+use CPSIT\Typo3ConfigLoader\Loader\SystemConfigurationLoader;
 use CPSIT\Typo3ConfigLoader\Tests\Unit\VirtualConfigurationTrait;
 use Helhum\ConfigLoader\Reader\ConfigReaderInterface;
 use Helhum\ConfigLoader\Reader\EnvironmentReader;
@@ -35,19 +35,19 @@ use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
- * SystemTest.
+ * SystemConfigurationLoaderTest.
  *
  * @author Elias Häußler <e.haeussler@familie-redlich.de>
  * @license GPL-3.0-or-later
  */
-#[CoversClass(System::class)]
-final class SystemTest extends UnitTestCase
+#[CoversClass(SystemConfigurationLoader::class)]
+final class SystemConfigurationLoaderTest extends UnitTestCase
 {
     use VirtualConfigurationTrait;
 
     protected bool $backupEnvironment = true;
 
-    private System $subject;
+    private SystemConfigurationLoader $subject;
 
     protected function setUp(): void
     {
@@ -57,7 +57,7 @@ final class SystemTest extends UnitTestCase
         $this->mockEnvFileConfiguration();
         $this->mockContextConfiguration();
 
-        $this->subject = new System();
+        $this->subject = new SystemConfigurationLoader();
     }
 
     #[Test]
@@ -76,7 +76,7 @@ final class SystemTest extends UnitTestCase
     {
         $this->unsetEnvFileConfiguration();
 
-        $actual = $this->getReadersFromSubject(new System());
+        $actual = $this->getReadersFromSubject(new SystemConfigurationLoader());
 
         self::assertCount(2, $actual);
         self::assertInstanceOf(PhpFileReader::class, $actual[0]);
@@ -137,7 +137,7 @@ final class SystemTest extends UnitTestCase
         $this->unsetContextConfiguration();
         $this->unsetEnvFileConfiguration();
 
-        (new System())->load();
+        (new SystemConfigurationLoader())->load();
 
         $expected = $this->backedUpEnvironmentVariables;
         unset($expected['ENV_FILE_PATH']);
@@ -154,7 +154,7 @@ final class SystemTest extends UnitTestCase
         /* @phpstan-ignore offsetAccess.nonOffsetAccessible, offsetAccess.nonOffsetAccessible */
         $GLOBALS['TYPO3_CONF_VARS']['CMS']['base'] = false;
 
-        (new System())->load();
+        (new SystemConfigurationLoader())->load();
 
         $expected = $this->backedUpEnvironmentVariables;
         unset($expected['ENV_FILE_PATH']);
@@ -169,7 +169,7 @@ final class SystemTest extends UnitTestCase
 
         self::assertDirectoryDoesNotExist($cacheDir);
 
-        (new System())->loadCached();
+        (new SystemConfigurationLoader())->loadCached();
 
         $cacheDir .= '/' . (Environment::getContext()->isProduction() ? 'prod' : 'dev');
 
@@ -207,7 +207,7 @@ final class SystemTest extends UnitTestCase
         $this->unsetContextConfiguration();
         $this->unsetEnvFileConfiguration();
 
-        (new System())->loadCached();
+        (new SystemConfigurationLoader())->loadCached();
 
         $cacheFile = sprintf(
             '%s/%s/cached-config-%s.php',
@@ -227,7 +227,7 @@ final class SystemTest extends UnitTestCase
     /**
      * @return ConfigReaderInterface[]
      */
-    private function getReadersFromSubject(?System $subject = null): array
+    private function getReadersFromSubject(?SystemConfigurationLoader $subject = null): array
     {
         $subject ??= $this->subject;
 

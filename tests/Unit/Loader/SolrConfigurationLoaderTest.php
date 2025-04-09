@@ -23,24 +23,24 @@ declare(strict_types=1);
 
 namespace CPSIT\Typo3ConfigLoader\Tests\Unit\Loader;
 
-use CPSIT\Typo3ConfigLoader\Loader\Solr;
+use CPSIT\Typo3ConfigLoader\Loader\SolrConfigurationLoader;
 use CPSIT\Typo3ConfigLoader\Tests\Unit\VirtualConfigurationTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
- * SolrTest.
+ * SolrConfigurationLoaderTest.
  *
  * @author Elias Häußler <e.haeussler@familie-redlich.de>
  * @license GPL-3.0-or-later
  */
-#[CoversClass(Solr::class)]
-final class SolrTest extends UnitTestCase
+#[CoversClass(SolrConfigurationLoader::class)]
+final class SolrConfigurationLoaderTest extends UnitTestCase
 {
     use VirtualConfigurationTrait;
 
-    private Solr $subject;
+    private SolrConfigurationLoader $subject;
 
     protected function setUp(): void
     {
@@ -48,7 +48,7 @@ final class SolrTest extends UnitTestCase
 
         $this->initializeVirtualConfiguration();
 
-        $this->subject = new Solr();
+        $this->subject = new SolrConfigurationLoader();
     }
 
     #[Test]

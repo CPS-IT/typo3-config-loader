@@ -20,8 +20,8 @@ library.
 
 ## 🚀 Features
 
-* Config loader for [system configuration](src/Loader/System.php)
-* Config loader for [EXT:solr](src/Loader/Solr.php)
+* Config loader for [system configuration](src/Loader/SystemConfigurationLoader.php)
+* Config loader for [EXT:solr](src/Loader/SolrConfigurationLoader.php)
 * Compatible with TYPO3 12.4 LTS and 13.4 LTS
 
 ## 🔥 Installation
@@ -43,15 +43,15 @@ composer require cpsit/typo3-config-loader
 Add the following code snippet to your project's `config/system/additional.php` file:
 
 ```php
-$systemConfiguration = new CPSIT\Typo3ConfigLoader\Loader\System();
-$systemConfiguration->load();
+$systemConfigLoader = new CPSIT\Typo3ConfigLoader\Loader\SystemConfigurationLoader();
+$systemConfigLoader->load();
 ```
 
 In case your project uses EXT:solr, you can load its configuration as well:
 
 ```php
-$solrConfiguration = new CPSIT\Typo3ConfigLoader\Loader\Solr();
-$solrConfiguration->load();
+$solrConfigLoader = new CPSIT\Typo3ConfigLoader\Loader\SolrConfigurationLoader();
+$solrConfigLoader->load();
 ```
 
 ### Cached
@@ -59,16 +59,16 @@ $solrConfiguration->load();
 You can also use a cached version of the appropriate loaders:
 
 ```php
-$systemConfiguration = new CPSIT\Typo3ConfigLoader\Loader\System();
-$systemConfiguration->loadCached();
+$systemConfigLoader = new CPSIT\Typo3ConfigLoader\Loader\SystemConfigurationLoader();
+$systemConfigLoader->loadCached();
 ```
 
 ## 🔍 Readers
 
 ### Environment variables reader
 
-The `Helhum\ConfigLoader\Reader\EnvironmentReader` is used within the `System` loader
-to map environment variables to configuration values. Environment variables must be
+The `Helhum\ConfigLoader\Reader\EnvironmentReader` is used within the `SystemConfigurationLoader`
+class to map environment variables to configuration values. Environment variables must be
 prefixed by `TYPO3` and each configuration key must be separated by `__` (two underscore
 characters).
 
