@@ -1,0 +1,80 @@
+{
+	"name": "cpsit/typo3-config-loader",
+	"description": "A loader for various TYPO3-related configuration, including system configuration and configuration for third-party extensions.",
+	"license": "GPL-3.0-or-later",
+	"authors": [
+		{
+			"name": "Elias Häußler",
+			"email": "e.haeussler@familie-redlich.de",
+			"homepage": "https://www.familie-redlich.de",
+			"role": "Maintainer"
+		}
+	],
+	"require": {
+		"php": "~8.2.0 || ~8.3.0 || ~8.4.0",
+		"helhum/config-loader": "^0.12.0",
+		"typo3/cms-core": "~12.4.0 || ~13.4.0"
+	},
+	"require-dev": {
+		"armin/editorconfig-cli": "^2.1",
+		"ergebnis/composer-normalize": "^2.45",
+		"friendsofphp/php-cs-fixer": "^3.75",
+		"mikey179/vfsstream": "^1.6.12",
+		"phpstan/extension-installer": "^1.4",
+		"phpstan/phpstan": "^2.1",
+		"phpstan/phpstan-deprecation-rules": "^2.0",
+		"phpstan/phpstan-phpunit": "^2.0",
+		"phpstan/phpstan-strict-rules": "^2.0",
+		"phpunit/phpunit": "^11.5",
+		"rector/rector": "^2.0",
+		"typo3/coding-standards": "^0.8.0",
+		"typo3/testing-framework": "^8.2.7 || ^9.1.2"
+	},
+	"autoload": {
+		"psr-4": {
+			"CPSIT\\Typo3ConfigLoader\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"CPSIT\\Typo3ConfigLoader\\Tests\\": "tests/"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"ergebnis/composer-normalize": true,
+			"phpstan/extension-installer": true,
+			"typo3/class-alias-loader": true,
+			"typo3/cms-composer-installers": true
+		},
+		"sort-packages": true
+	},
+	"scripts": {
+		"fix": [
+			"@fix:composer",
+			"@fix:editorconfig",
+			"@fix:php"
+		],
+		"fix:composer": "@composer normalize",
+		"fix:editorconfig": "@lint:editorconfig --fix",
+		"fix:php": "php-cs-fixer fix",
+		"lint": [
+			"@lint:composer",
+			"@lint:editorconfig",
+			"@lint:php"
+		],
+		"lint:composer": "@fix:composer --dry-run",
+		"lint:editorconfig": "ec --git-only",
+		"lint:php": "@fix:php --dry-run",
+		"migration": [
+			"@migration:rector"
+		],
+		"migration:rector": "rector process",
+		"sca": [
+			"@sca:php"
+		],
+		"sca:php": "phpstan analyse -c phpstan.neon",
+		"test": "@test:coverage --no-coverage",
+		"test:coverage": "phpunit -c phpunit.xml"
+	}
+}
