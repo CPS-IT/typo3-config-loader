@@ -93,6 +93,30 @@ implement the additional method `loadCached` to make use of cached configuration
 Consider contributing to this project if you feel like some functionality is missing
 or not yet fully covered.
 
+## 🚧 Migration
+
+### 0.5.x → 1.x
+
+* **Removal of environment variables reader compatibility layer**
+  - Default key separator was changed from `_` (one underscore) to `__` (two underscores).
+  - Support for feature flag environment variable `TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR`
+    was removed.
+  - Make sure to convert existing environment variables to make use of the changed
+    key separator, e.g. `TYPO3_SYS_debug` → `TYPO3__SYS__debug`.
+* **Renaming of shipped configuration loader class names**
+  - Both shipped configuration loaders were renamed from `<Type>` to
+    `<Type>ConfigurationLoader`, e.g.
+    [`System`](https://github.com/CPS-IT/typo3-config-loader/blob/5e516082108bce67adcf4b5b20e344725a3764f5/src/Loader/System.php)
+    → [`SystemConfigurationLoader`](src/Loader/SystemConfigurationLoader.php).
+  - Change references to the renamed classes and make sure to adapt the class names
+    as described.
+* **Hardening of configuration loader classes**
+  - Both shipped configuration loaders are now marked as `final readonly`.
+  - Custom configuration loaders may no longer extended default configuration loaders.
+  - Change your custom implementations to a direct implementation of the
+    [`ConfigurationLoader`](src/Loader/ConfigurationLoader.php) or
+    [`CacheableConfigurationLoader`](src/Loader/CacheableConfigurationLoader.php) interfaces.
+
 ## 🧑‍💻 Contributing
 
 Please have a look at [`CONTRIBUTING.md`](CONTRIBUTING.md).
