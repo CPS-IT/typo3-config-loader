@@ -7,6 +7,8 @@ on:
     branches:
       - main
 
+permissions: read-all
+
 jobs:
   tests:
     name: Tests (PHP ${{ matrix.php-version }}, TYPO3 ${{ matrix.typo3-version }} & ${{ matrix.dependencies }} dependencies)
