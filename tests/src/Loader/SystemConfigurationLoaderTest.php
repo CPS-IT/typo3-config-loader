@@ -21,18 +21,18 @@ declare(strict_types=1);
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace CPSIT\Typo3ConfigLoader\Tests\Unit\Loader;
+namespace CPSIT\Typo3ConfigLoader\Tests\Loader;
 
 use CPSIT\Typo3ConfigLoader\Loader\SystemConfigurationLoader;
-use CPSIT\Typo3ConfigLoader\Tests\Unit\VirtualConfigurationTrait;
+use CPSIT\Typo3ConfigLoader\Tests\VirtualConfigurationTrait;
 use Helhum\ConfigLoader\Reader\ConfigReaderInterface;
 use Helhum\ConfigLoader\Reader\EnvironmentReader;
 use Helhum\ConfigLoader\Reader\PhpFileReader;
 use Helhum\ConfigLoader\Reader\YamlFileReader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
  * SystemConfigurationLoaderTest.
@@ -41,18 +41,14 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
  * @license GPL-3.0-or-later
  */
 #[CoversClass(SystemConfigurationLoader::class)]
-final class SystemConfigurationLoaderTest extends UnitTestCase
+final class SystemConfigurationLoaderTest extends TestCase
 {
     use VirtualConfigurationTrait;
-
-    protected bool $backupEnvironment = true;
 
     private SystemConfigurationLoader $subject;
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->initializeVirtualConfiguration();
         $this->mockEnvFileConfiguration();
         $this->mockContextConfiguration();
@@ -244,8 +240,7 @@ final class SystemConfigurationLoaderTest extends UnitTestCase
     protected function tearDown(): void
     {
         $this->restoreConfiguration();
+        $this->restoreEnvironment();
         $this->restoreEnvironmentVariables();
-
-        parent::tearDown();
     }
 }

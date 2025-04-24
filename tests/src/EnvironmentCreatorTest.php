@@ -21,12 +21,12 @@ declare(strict_types=1);
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace CPSIT\Typo3ConfigLoader\Tests\Unit;
+namespace CPSIT\Typo3ConfigLoader\Tests;
 
 use CPSIT\Typo3ConfigLoader\EnvironmentCreator;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Test;
-use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * EnvironmentCreatorTest.
@@ -35,7 +35,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
  * @license GPL-3.0-or-later
  */
 #[CoversTrait(EnvironmentCreator::class)]
-final class EnvironmentCreatorTest extends UnitTestCase
+final class EnvironmentCreatorTest extends TestCase
 {
     /**
      * @var EnvironmentCreator|object
@@ -44,8 +44,6 @@ final class EnvironmentCreatorTest extends UnitTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->subject = new class () {
             use EnvironmentCreator;
 
