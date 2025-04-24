@@ -21,13 +21,13 @@ declare(strict_types=1);
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace CPSIT\Typo3ConfigLoader\Tests\Unit\Loader;
+namespace CPSIT\Typo3ConfigLoader\Tests\Loader;
 
 use CPSIT\Typo3ConfigLoader\Loader\SolrConfigurationLoader;
-use CPSIT\Typo3ConfigLoader\Tests\Unit\VirtualConfigurationTrait;
+use CPSIT\Typo3ConfigLoader\Tests\VirtualConfigurationTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * SolrConfigurationLoaderTest.
@@ -36,7 +36,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
  * @license GPL-3.0-or-later
  */
 #[CoversClass(SolrConfigurationLoader::class)]
-final class SolrConfigurationLoaderTest extends UnitTestCase
+final class SolrConfigurationLoaderTest extends TestCase
 {
     use VirtualConfigurationTrait;
 
@@ -44,8 +44,6 @@ final class SolrConfigurationLoaderTest extends UnitTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->initializeVirtualConfiguration();
 
         $this->subject = new SolrConfigurationLoader();

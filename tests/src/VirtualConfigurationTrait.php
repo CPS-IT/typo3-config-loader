@@ -21,7 +21,7 @@ declare(strict_types=1);
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace CPSIT\Typo3ConfigLoader\Tests\Unit;
+namespace CPSIT\Typo3ConfigLoader\Tests;
 
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
@@ -54,7 +54,7 @@ trait VirtualConfigurationTrait
         $this->rootPath = vfsStream::setup('fr-typo3-config-loader-tests');
         $this->contextFilePath = 'app/config/environment/Testing/FrTypo3ConfigLoader.php';
         /* @phpstan-ignore assign.propertyType */
-        $this->backedUpConfiguration = $GLOBALS['TYPO3_CONF_VARS'];
+        $this->backedUpConfiguration = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
         $this->backedUpEnvironmentVariables = array_merge(getenv(), $_ENV);
 
         $GLOBALS['TYPO3_CONF_VARS'] = [];
@@ -96,14 +96,29 @@ trait VirtualConfigurationTrait
 
         Environment::initialize(
             new ApplicationContext('Testing/FrTypo3ConfigLoader'),
-            Environment::isCli(),
-            Environment::isComposerMode(),
+            true,
+            false,
             $this->rootPath->url(),
             $publicPath->url(),
             $varPath->url(),
             $configPath->url(),
-            Environment::getCurrentScript(),
-            Environment::isWindows() ? 'WINDOWS' : 'UNIX'
+            'index.php',
+            'UNIX',
+        );
+    }
+
+    protected function restoreEnvironment(): void
+    {
+        Environment::initialize(
+            new ApplicationContext('Testing'),
+            true,
+            false,
+            'http://typo3-testing.local/',
+            (string)\getcwd(),
+            \getcwd() . '/var',
+            \getcwd() . '/config',
+            'index.php',
+            'UNIX',
         );
     }
 
