@@ -69,8 +69,9 @@ $systemConfigLoader->loadCached();
 
 The [`Helhum\ConfigLoader\Reader\PhpFileReader`][2] receives lowest priority when
 loading system configuration. It resolves system configuration from a context-specific
-file path within the `app/config/environment` directory. Each file must return an array
-with additional system configuration values.
+file path within the `app/config/environment` directory. The default directory path can be
+overwritten with an environment variable `CONTEXT_CONFIGURATION_PATH`. Each file must return an
+array with additional system configuration values.
 
 **Example:**
 
