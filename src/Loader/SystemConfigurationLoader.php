@@ -353,8 +353,10 @@ final readonly class SystemConfigurationLoader implements CacheableConfiguration
      */
     private function getContextConfigurationPath(): string
     {
-        if (is_string(getenv('CONTEXT_CONFIGURATION_PATH'))) {
-            return (string)getenv('CONTEXT_CONFIGURATION_PATH');
+        $contextConfigurationPath = (string)getenv('CONTEXT_CONFIGURATION_PATH');
+
+        if ($contextConfigurationPath !== '') {
+            return $contextConfigurationPath;
         }
 
         return self::CONTEXT_CONFIGURATION_PATH;
