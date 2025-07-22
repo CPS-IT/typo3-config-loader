@@ -220,6 +220,33 @@ final class SystemConfigurationLoaderTest extends TestCase
         $this->unsetEnvironmentVariablesConfiguration();
     }
 
+    #[Test]
+    public function getContextConfigurationPathReturnsDefaultPath(): void
+    {
+        $reflection = new \ReflectionObject($this->subject);
+        $method = $reflection->getMethod('getContextConfigurationPath');
+
+        $result = $method->invoke($this->subject);
+
+        self::assertSame('app/config/environment', $result);
+    }
+
+    #[Test]
+    public function getContextConfigurationPathReturnsCustomPathFromEnvironment(): void
+    {
+        $customPath = 'custom/config/path';
+        putenv('CONTEXT_CONFIGURATION_PATH=' . $customPath);
+
+        $reflection = new \ReflectionObject($this->subject);
+        $method = $reflection->getMethod('getContextConfigurationPath');
+
+        $result = $method->invoke($this->subject);
+
+        self::assertSame($customPath, $result);
+
+        putenv('CONTEXT_CONFIGURATION_PATH');
+    }
+
     /**
      * @return ConfigReaderInterface[]
      */

@@ -340,7 +340,24 @@ final readonly class SystemConfigurationLoader implements CacheableConfiguration
         $rootPath = Environment::getProjectPath();
         $context = Environment::getContext();
 
-        return sprintf('%s/%s/%s.php', $rootPath, self::CONTEXT_CONFIGURATION_PATH, (string)$context);
+        return sprintf('%s/%s/%s.php', $rootPath, $this->getContextConfigurationPath(), (string)$context);
+    }
+
+    /**
+     * Get path to context configuration.
+     *
+     * Returns the path to the context configuration directory. This is used
+     * to load context-specific configuration files.
+     *
+     * @return string Path to context configuration directory
+     */
+    private function getContextConfigurationPath(): string
+    {
+        if (is_string(getenv('CONTEXT_CONFIGURATION_PATH'))) {
+            return (string)getenv('CONTEXT_CONFIGURATION_PATH');
+        }
+
+        return self::CONTEXT_CONFIGURATION_PATH;
     }
 
     /**
