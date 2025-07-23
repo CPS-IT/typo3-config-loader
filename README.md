@@ -141,7 +141,7 @@ or not yet fully covered.
 
 ## 🚧 Migration
 
-### 0.5.x → 1.x
+### 0.4.x/0.5.x → 1.x
 
 * **Removal of environment variables reader compatibility layer**
   * Default key separator was changed from `_` (one underscore) to `__` (two underscores).
