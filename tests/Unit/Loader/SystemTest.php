@@ -187,6 +187,9 @@ final class SystemTest extends UnitTestCase
      */
     public function loadCachedData(): void
     {
+        // Make sure proper configuration is set (TYPO3 10.4 compatibility)
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['folderCreateMask'] = '0755';
+
         $cacheDir = Environment::getVarPath() . '/cache/data/typo3_config';
         self::assertFalse(file_exists($cacheDir));
 
@@ -209,6 +212,8 @@ final class SystemTest extends UnitTestCase
             ],
             $GLOBALS['TYPO3_CONF_VARS']['CMS']
         );
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['SYS']['folderCreateMask']);
     }
 
     /**
@@ -216,6 +221,9 @@ final class SystemTest extends UnitTestCase
      */
     public function loadCachedDataWithoutFileReader(): void
     {
+        // Make sure proper configuration is set (TYPO3 10.4 compatibility)
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['folderCreateMask'] = '0755';
+
         $cacheDir = Environment::getVarPath() . '/cache/data/typo3_config';
         self::assertFalse(file_exists($cacheDir));
 
@@ -231,6 +239,8 @@ final class SystemTest extends UnitTestCase
         self::assertSame(['TEST' => 'test'], $GLOBALS['TYPO3_CONF_VARS']['CMS']);
         $this->restoreEnvironmentVariables();
         $this->unsetEnvironmentVariablesConfiguration();
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['SYS']['folderCreateMask']);
     }
 
     /**
