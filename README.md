@@ -6,7 +6,7 @@
 [![Maintainability](https://img.shields.io/codeclimate/maintainability/CPS-IT/typo3-config-loader?logo=codeclimate)](https://codeclimate.com/github/CPS-IT/typo3-config-loader/maintainability)
 [![CGL](https://img.shields.io/github/actions/workflow/status/CPS-IT/typo3-config-loader/cgl.yaml?label=cgl&logo=github)](https://github.com/CPS-IT/typo3-config-loader/actions/workflows/cgl.yaml)
 [![Tests](https://img.shields.io/github/actions/workflow/status/CPS-IT/typo3-config-loader/tests.yaml?label=tests&logo=github)](https://github.com/CPS-IT/typo3-config-loader/actions/workflows/tests.yaml)
-[![TYPO3 support](https://img.shields.io/badge/TYPO3-12_%26_13-orange?logo=typo3)](https://get.typo3.org/)
+[![TYPO3 support](https://img.shields.io/badge/TYPO3-10,_11_%26_12-orange?logo=typo3)](https://get.typo3.org/)
 
 📦&nbsp;[Packagist](https://packagist.org/packages/cpsit/typo3-config-loader) |
 💾&nbsp;[Repository](https://github.com/CPS-IT/typo3-config-loader) |
@@ -22,7 +22,7 @@ library.
 
 * Config loader for [system configuration](src/Loader/System.php)
 * Config loader for [EXT:solr](src/Loader/Solr.php)
-* Compatible with TYPO3 12.4 LTS and 13.4 LTS
+* Compatible with TYPO3 10.4 LTS, 11.5 LTS and 12.4 LTS
 
 ## 🔥 Installation
 
@@ -40,7 +40,8 @@ composer require cpsit/typo3-config-loader
 
 ### Basic (non-cached)
 
-Add the following code snippet to your project's `config/system/additional.php` file:
+Add the following code snippet to your project's `config/system/additional.php` file
+(`AdditionalConfiguration.php` for TYPO3 10.4 and 11.5, respectively):
 
 ```php
 $systemConfiguration = new CPSIT\Typo3ConfigLoader\Loader\System();
@@ -76,6 +77,13 @@ characters).
 
 * Environment variable: `TYPO3__MAIL__transport_smtp_server`
 * Configuration path: `$GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport_smtp_server']`
+
+> [!IMPORTANT]
+> By default (and for historical reasons), a single underscore (`_`) is used as
+> key separator. This behavior is **deprecated** and will be removed in a future version
+> of the library. You are advised to set an additional environment variable
+> `TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1` as feature toggle to enable the new
+> behavior. Otherwise, a deprecation error will be logged.
 
 ## 💡 Custom loaders
 

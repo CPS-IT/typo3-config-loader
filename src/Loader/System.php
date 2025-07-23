@@ -5,20 +5,14 @@ declare(strict_types=1);
 /*
  * This file is part of the Composer package "cpsit/typo3-config-loader".
  *
- * Copyright (C) 2021 Elias Häußler <e.haeussler@familie-redlich.de>
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * The TYPO3 project - inspiring people to share!
  */
 
 namespace CPSIT\Typo3ConfigLoader\Loader;
@@ -80,7 +74,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @author Elias Häußler <e.haeussler@familie-redlich.de>
  * @license GPL-3.0-or-later
  */
-final readonly class System implements CacheableConfigurationLoader
+class System implements CacheableConfigurationLoader
 {
     use EnvironmentCreator;
 
@@ -94,7 +88,7 @@ final readonly class System implements CacheableConfigurationLoader
     /**
      * @var ConfigReaderInterface[]
      */
-    private array $readers;
+    protected array $readers;
 
     public function __construct()
     {
@@ -124,13 +118,11 @@ final readonly class System implements CacheableConfigurationLoader
      */
     public function loadCached(): void
     {
-        $this->loadWithConfigLoader(
-            new CachedConfigurationLoader(
-                $this->getCachePath(),
-                $this->getCachedFileIdentifier(),
-                fn() => new ConfigurationLoader($this->readers),
-            ),
-        );
+        $this->loadWithConfigLoader(new CachedConfigurationLoader(
+            $this->getCachePath(),
+            $this->getCachedFileIdentifier(),
+            fn() => new ConfigurationLoader($this->readers)
+        ));
     }
 
     /**
@@ -146,18 +138,11 @@ final readonly class System implements CacheableConfigurationLoader
     /**
      * Post Process the Loaded Config Data.
      *
-     * @param array<mixed> $data
+     * @param array<string, mixed> $data
      */
     private function processLoadedData(array $data): void
     {
-        $globalConfig = $GLOBALS['TYPO3_CONF_VARS'] ?? null;
-
-        // Early return if global config is invalid
-        if (!\is_array($globalConfig)) {
-            return;
-        }
-
-        $GLOBALS['TYPO3_CONF_VARS'] = array_replace_recursive($globalConfig, $data);
+        $GLOBALS['TYPO3_CONF_VARS'] = array_replace_recursive($GLOBALS['TYPO3_CONF_VARS'], $data);
 
         // Create CMS specific environment variables
         $this->createEnvironmentVariables(self::BASE_CONFIG_PATH);
@@ -191,13 +176,13 @@ final readonly class System implements CacheableConfigurationLoader
     private function getCachedFileIdentifier(): string
     {
         $name = '';
-        $filePaths = [
+        $filePaths = array_filter([
             $this->getEnvFilePath(),
             $this->getContextFilePath(),
-        ];
+        ]);
 
         foreach ($filePaths as $filePath) {
-            if ($filePath !== null && file_exists($filePath)) {
+            if (file_exists($filePath)) {
                 $name .= md5_file($filePath);
             }
         }
@@ -215,18 +200,11 @@ final readonly class System implements CacheableConfigurationLoader
      *
      * @param string $configPath Path to the configuration to be transformed to environment variables
      */
-    private function createEnvironmentVariables(string $configPath): void
+    protected function createEnvironmentVariables(string $configPath): void
     {
-        $globalConfig = $GLOBALS['TYPO3_CONF_VARS'] ?? null;
-
-        // Early return if global config is invalid
-        if (!\is_array($globalConfig)) {
-            return;
-        }
-
         try {
-            $config = ArrayUtility::getValueByPath($globalConfig, $configPath);
-        } catch (MissingArrayPathException) {
+            $config = ArrayUtility::getValueByPath($GLOBALS['TYPO3_CONF_VARS'], $configPath);
+        } catch (MissingArrayPathException $e) {
             // Early return if configuration cannot be read
             return;
         }
@@ -238,13 +216,9 @@ final readonly class System implements CacheableConfigurationLoader
 
         // Resolve all available configuration recursively and transform it to environment variables
         foreach ($config as $key => $value) {
-            if (!\is_scalar($key)) {
-                continue;
-            }
-
             if (is_array($value)) {
                 $this->createEnvironmentVariables($configPath . self::CONFIG_DELIMITER . $key);
-            } elseif (\is_scalar($value)) {
+            } else {
                 $envKey = strtoupper(str_replace(self::CONFIG_DELIMITER, self::ENV_DELIMITER, $configPath) . self::ENV_DELIMITER . $key);
                 $this->createEnvironmentVariable($envKey, (string)$value);
             }
@@ -265,7 +239,7 @@ final readonly class System implements CacheableConfigurationLoader
      *
      * @return ConfigReaderInterface[] All available configuration readers
      */
-    private function initializeReaders(): array
+    protected function initializeReaders(): array
     {
         $readers = [
             $this->getContextSpecificReader(),
@@ -286,7 +260,7 @@ final readonly class System implements CacheableConfigurationLoader
      *
      * @return ConfigReaderInterface Context-specific configuration reader
      */
-    private function getContextSpecificReader(): ConfigReaderInterface
+    protected function getContextSpecificReader(): ConfigReaderInterface
     {
         $contextFile = $this->getContextFilePath();
 
@@ -302,7 +276,7 @@ final readonly class System implements CacheableConfigurationLoader
      *
      * @return ConfigReaderInterface|null Reader for configuration provided by env file, if available, NULL otherwise
      */
-    private function getEnvironmentFileReader(): ?ConfigReaderInterface
+    protected function getEnvironmentFileReader(): ?ConfigReaderInterface
     {
         $envFilePath = $this->getEnvFilePath();
 
@@ -321,9 +295,29 @@ final readonly class System implements CacheableConfigurationLoader
      *
      * @return ConfigReaderInterface Reader for configuration from environment variables
      */
-    private function getEnvironmentVariablesReader(): ConfigReaderInterface
+    protected function getEnvironmentVariablesReader(): ConfigReaderInterface
     {
-        return new EnvironmentReader('TYPO3', '__');
+        $useSafeSeparator = (int)getenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR');
+
+        if ($useSafeSeparator === 1) {
+            $separator = '__';
+        } else {
+            trigger_error(
+                'Using an unsafe key separator for TYPO3_* environment variables is deprecated and will be removed ' .
+                'with fr/typo3-config-loader v1.0. Please switch to `__` as key separator and specify the environment ' .
+                'variable $TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1 to enable the new behavior.',
+                E_USER_DEPRECATED
+            );
+
+            // Don't parse feature flag env variable
+            unset($_ENV['TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR']);
+            putenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR');
+
+            // @todo Remove BC layer with v1.0
+            $separator = '_';
+        }
+
+        return new EnvironmentReader('TYPO3', $separator);
     }
 
     /**
@@ -335,7 +329,7 @@ final readonly class System implements CacheableConfigurationLoader
      *
      * @return string Path to context-specific file
      */
-    private function getContextFilePath(): string
+    protected function getContextFilePath(): string
     {
         $rootPath = Environment::getProjectPath();
         $context = Environment::getContext();
@@ -351,7 +345,7 @@ final readonly class System implements CacheableConfigurationLoader
      *
      * @return string|null Path to env.yml file, if available, NULL otherwise
      */
-    private function getEnvFilePath(): ?string
+    protected function getEnvFilePath(): ?string
     {
         $envFilePath = getenv('ENV_FILE_PATH');
 

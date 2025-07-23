@@ -5,27 +5,19 @@ declare(strict_types=1);
 /*
  * This file is part of the Composer package "cpsit/typo3-config-loader".
  *
- * Copyright (C) 2021 Elias Häußler <e.haeussler@familie-redlich.de>
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * The TYPO3 project - inspiring people to share!
  */
 
 namespace CPSIT\Typo3ConfigLoader\Tests\Unit;
 
 use CPSIT\Typo3ConfigLoader\EnvironmentCreator;
-use PHPUnit\Framework\Attributes\CoversTrait;
-use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
@@ -34,13 +26,12 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
  * @author Elias Häußler <e.haeussler@familie-redlich.de>
  * @license GPL-3.0-or-later
  */
-#[CoversTrait(EnvironmentCreator::class)]
 final class EnvironmentCreatorTest extends UnitTestCase
 {
     /**
      * @var EnvironmentCreator|object
      */
-    private object $subject;
+    protected object $subject;
 
     protected function setUp(): void
     {
@@ -56,50 +47,49 @@ final class EnvironmentCreatorTest extends UnitTestCase
         };
     }
 
-    #[Test]
+    /**
+     * @test
+     */
     public function mapConfigToEnvironmentReturnsEarlyIfConfigOfGivenPathDoesNotExist(): void
     {
+        $reflectionMethod = $this->getAccessibleMethod('mapConfigToEnvironment');
         $expected = getenv();
 
-        $reflectionMethod = $this->getReflectionMethod('mapConfigToEnvironment');
         $reflectionMethod->invoke($this->subject, [], 'foo/baz', 'baz');
 
         self::assertSame($expected, getenv());
     }
 
-    #[Test]
-    public function mapConfigToEnvironmentReturnsEarlyIfValueOfGivenPathIsNotScalar(): void
-    {
-        $expected = getenv();
-
-        $reflectionMethod = $this->getReflectionMethod('mapConfigToEnvironment');
-        $reflectionMethod->invoke($this->subject, ['foo' => ['baz' => new \stdClass()]], 'foo/baz', 'baz');
-
-        self::assertSame($expected, getenv());
-    }
-
-    #[Test]
+    /**
+     * @test
+     */
     public function mapConfigToEnvironmentCreatesEnvironmentVariableForGivenConfig(): void
     {
-        $reflectionMethod = $this->getReflectionMethod('mapConfigToEnvironment');
+        $reflectionMethod = $this->getAccessibleMethod('mapConfigToEnvironment');
+
         $reflectionMethod->invoke($this->subject, ['foo' => ['baz' => 'hello world!']], 'foo/baz', 'baz');
 
         self::assertSame('hello world!', getenv('FOO_BAZ'));
     }
 
-    #[Test]
+    /**
+     * @test
+     */
     public function createEnvironmentVariableCreatesEnvironmentVariable(): void
     {
-        $reflectionMethod = $this->getReflectionMethod('createEnvironmentVariable');
+        $reflectionMethod = $this->getAccessibleMethod('createEnvironmentVariable');
+
         $reflectionMethod->invoke($this->subject, 'baz', 'hello world!');
 
         self::assertSame('hello world!', getenv('FOO_BAZ'));
     }
 
-    private function getReflectionMethod(string $methodName): \ReflectionMethod
+    private function getAccessibleMethod(string $methodName): \ReflectionMethod
     {
         $reflection = new \ReflectionObject($this->subject);
+        $reflectionMethod = $reflection->getMethod($methodName);
+        $reflectionMethod->setAccessible(true);
 
-        return $reflection->getMethod($methodName);
+        return $reflectionMethod;
     }
 }

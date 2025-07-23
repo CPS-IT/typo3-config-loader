@@ -5,20 +5,14 @@ declare(strict_types=1);
 /*
  * This file is part of the Composer package "cpsit/typo3-config-loader".
  *
- * Copyright (C) 2021 Elias Häußler <e.haeussler@familie-redlich.de>
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * The TYPO3 project - inspiring people to share!
  */
 
 namespace CPSIT\Typo3ConfigLoader\Tests\Unit;
@@ -40,12 +34,12 @@ trait VirtualConfigurationTrait
     protected string $contextFilePath;
 
     /**
-     * @var array<mixed>
+     * @var array<string, mixed>
      */
     protected array $backedUpConfiguration;
 
     /**
-     * @var array<mixed>
+     * @var array<string, mixed>
      */
     protected array $backedUpEnvironmentVariables;
 
@@ -53,7 +47,6 @@ trait VirtualConfigurationTrait
     {
         $this->rootPath = vfsStream::setup('fr-typo3-config-loader-tests');
         $this->contextFilePath = 'app/config/environment/Testing/FrTypo3ConfigLoader.php';
-        /* @phpstan-ignore assign.propertyType */
         $this->backedUpConfiguration = $GLOBALS['TYPO3_CONF_VARS'];
         $this->backedUpEnvironmentVariables = array_merge(getenv(), $_ENV);
 
@@ -115,7 +108,11 @@ trait VirtualConfigurationTrait
     protected function unsetEnvironmentVariablesConfiguration(): void
     {
         foreach (array_keys(getenv()) as $environmentVariable) {
-            if (str_starts_with($environmentVariable, 'TYPO3_')) {
+            if ($environmentVariable === 'TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR') {
+                continue;
+            }
+
+            if (substr($environmentVariable, 0, 6) === 'TYPO3_') {
                 unset($_ENV[$environmentVariable]);
             }
         }

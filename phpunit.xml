@@ -5,7 +5,13 @@
          colors="true"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
 >
+    <php>
+        <env name="TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR" value="1" />
+    </php>
     <coverage>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
         <report>
             <clover outputFile=".build/coverage/clover.xml"/>
             <html outputDirectory=".build/coverage/html"/>
@@ -14,15 +20,10 @@
     </coverage>
     <testsuites>
         <testsuite name="tests">
-            <directory>tests</directory>
+            <directory>tests/*</directory>
         </testsuite>
     </testsuites>
     <logging>
         <junit outputFile=".build/coverage/junit.xml"/>
     </logging>
-    <source>
-        <include>
-            <directory>src</directory>
-        </include>
-    </source>
 </phpunit>

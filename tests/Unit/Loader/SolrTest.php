@@ -5,28 +5,20 @@ declare(strict_types=1);
 /*
  * This file is part of the Composer package "cpsit/typo3-config-loader".
  *
- * Copyright (C) 2021 Elias Häußler <e.haeussler@familie-redlich.de>
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * The TYPO3 project - inspiring people to share!
  */
 
 namespace CPSIT\Typo3ConfigLoader\Tests\Unit\Loader;
 
 use CPSIT\Typo3ConfigLoader\Loader\Solr;
 use CPSIT\Typo3ConfigLoader\Tests\Unit\VirtualConfigurationTrait;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
@@ -35,12 +27,11 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
  * @author Elias Häußler <e.haeussler@familie-redlich.de>
  * @license GPL-3.0-or-later
  */
-#[CoversClass(Solr::class)]
 final class SolrTest extends UnitTestCase
 {
     use VirtualConfigurationTrait;
 
-    private Solr $subject;
+    protected Solr $subject;
 
     protected function setUp(): void
     {
@@ -51,21 +42,9 @@ final class SolrTest extends UnitTestCase
         $this->subject = new Solr();
     }
 
-    #[Test]
-    public function loadSkipsEnvironmentVariableCreationIfGlobalConfigIsInvalid(): void
-    {
-        $globalConfig = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
-
-        unset($GLOBALS['TYPO3_CONF_VARS']);
-
-        $this->subject->load();
-
-        self::assertSame($this->backedUpEnvironmentVariables, getenv());
-
-        $GLOBALS['TYPO3_CONF_VARS'] = $globalConfig;
-    }
-
-    #[Test]
+    /**
+     * @test
+     */
     public function loadSkipsEnvironmentVariableCreationIfConfigPathIsNotAvailable(): void
     {
         $this->subject->load();
@@ -73,21 +52,11 @@ final class SolrTest extends UnitTestCase
         self::assertSame($this->backedUpEnvironmentVariables, getenv());
     }
 
-    #[Test]
-    public function loadSkipsEnvironmentVariableCreationIfSolrConfigIsInvalid(): void
-    {
-        /* @phpstan-ignore offsetAccess.nonOffsetAccessible, offsetAccess.nonOffsetAccessible */
-        $GLOBALS['TYPO3_CONF_VARS']['CMS']['solr'] = false;
-
-        $this->subject->load();
-
-        self::assertSame($this->backedUpEnvironmentVariables, getenv());
-    }
-
-    #[Test]
+    /**
+     * @test
+     */
     public function loadCreatesEnvironmentVariablesFromConfiguration(): void
     {
-        /* @phpstan-ignore offsetAccess.nonOffsetAccessible, offsetAccess.nonOffsetAccessible */
         $GLOBALS['TYPO3_CONF_VARS']['CMS']['solr'] = [
             'scheme' => 'https',
             'host' => 'localhost',
@@ -110,34 +79,6 @@ final class SolrTest extends UnitTestCase
         self::assertSame('/solr', getenv('PHP_SOLR_PATH_READ'));
         self::assertSame('/solr/core_de', getenv('PHP_SOLR_CORE_READ_1_DE'));
         self::assertSame('/solr/core_en', getenv('PHP_SOLR_CORE_READ_1_EN'));
-    }
-
-    #[Test]
-    public function loadCreatesEnvironmentVariablesAndSkipsPathsOnInvalidPathConfiguration(): void
-    {
-        /* @phpstan-ignore offsetAccess.nonOffsetAccessible, offsetAccess.nonOffsetAccessible */
-        $GLOBALS['TYPO3_CONF_VARS']['CMS']['solr'] = [
-            'path' => null,
-        ];
-
-        $this->subject->load();
-
-        self::assertSame($this->backedUpEnvironmentVariables, getenv());
-    }
-
-    #[Test]
-    public function loadCreatesEnvironmentVariablesAndSkipsPathsOnInvalidLanguageConfiguration(): void
-    {
-        /* @phpstan-ignore offsetAccess.nonOffsetAccessible, offsetAccess.nonOffsetAccessible */
-        $GLOBALS['TYPO3_CONF_VARS']['CMS']['solr'] = [
-            'path' => [
-                '1' => null,
-            ],
-        ];
-
-        $this->subject->load();
-
-        self::assertSame($this->backedUpEnvironmentVariables, getenv());
     }
 
     protected function tearDown(): void

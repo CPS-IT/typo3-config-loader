@@ -5,20 +5,14 @@ declare(strict_types=1);
 /*
  * This file is part of the Composer package "cpsit/typo3-config-loader".
  *
- * Copyright (C) 2021 Elias Häußler <e.haeussler@familie-redlich.de>
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * The TYPO3 project - inspiring people to share!
  */
 
 namespace CPSIT\Typo3ConfigLoader\Tests\Unit\Loader;
@@ -29,8 +23,6 @@ use Helhum\ConfigLoader\Reader\ConfigReaderInterface;
 use Helhum\ConfigLoader\Reader\EnvironmentReader;
 use Helhum\ConfigLoader\Reader\PhpFileReader;
 use Helhum\ConfigLoader\Reader\YamlFileReader;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
@@ -40,17 +32,17 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
  * @author Elias Häußler <e.haeussler@familie-redlich.de>
  * @license GPL-3.0-or-later
  */
-#[CoversClass(System::class)]
 final class SystemTest extends UnitTestCase
 {
     use VirtualConfigurationTrait;
 
-    protected bool $backupEnvironment = true;
-
-    private System $subject;
+    protected System $subject;
 
     protected function setUp(): void
     {
+        // @todo Directly override property once support for typo3/testing-framework 6.x is dropped
+        $this->backupEnvironment = true;
+
         parent::setUp();
 
         $this->initializeVirtualConfiguration();
@@ -60,7 +52,9 @@ final class SystemTest extends UnitTestCase
         $this->subject = new System();
     }
 
-    #[Test]
+    /**
+     * @test
+     */
     public function constructorInitializesAllReaders(): void
     {
         $actual = $this->getReadersFromSubject($this->subject);
@@ -71,7 +65,9 @@ final class SystemTest extends UnitTestCase
         self::assertInstanceOf(EnvironmentReader::class, $actual[2]);
     }
 
-    #[Test]
+    /**
+     * @test
+     */
     public function constructorSkipsEnvFileReaderIfNoEnvFilePathIsSet(): void
     {
         $this->unsetEnvFileConfiguration();
@@ -83,26 +79,9 @@ final class SystemTest extends UnitTestCase
         self::assertInstanceOf(EnvironmentReader::class, $actual[1]);
     }
 
-    #[Test]
-    public function loadDoesNothingIfGlobalConfigIsInvalid(): void
-    {
-        $this->unsetEnvFileConfiguration();
-
-        $globalConfig = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
-
-        unset($GLOBALS['TYPO3_CONF_VARS']);
-
-        $this->subject->load();
-
-        self::assertSame($this->backedUpEnvironmentVariables, getenv());
-        self::assertArrayNotHasKey('TYPO3_CONF_VARS', $GLOBALS);
-
-        $GLOBALS['TYPO3_CONF_VARS'] = $globalConfig;
-
-        $this->unsetEnvironmentVariablesConfiguration();
-    }
-
-    #[Test]
+    /**
+     * @test
+     */
     public function loadReadsConfigurationFromAllReaders(): void
     {
         $this->unsetEnvironmentVariablesConfiguration();
@@ -131,52 +110,91 @@ final class SystemTest extends UnitTestCase
         self::assertSame('baz', getenv('PHP_CMS_BASE_ANOTHER_FOO'));
     }
 
-    #[Test]
+    /**
+     * @test
+     */
+    public function loadAllowsEnvironmentVariablesWithUnsafeKeySeparator(): void
+    {
+        $this->unsetEnvironmentVariablesConfiguration();
+
+        // Switch to legacy (unsafe) key separator
+        putenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR');
+
+        $_ENV['TYPO3_FOO'] = 'baz';
+
+        $this->runWithSuppressedDeprecations(static function () {
+            $subject = new System();
+            $subject->load();
+        });
+
+        $expected = [
+            'foo' => 'baz',
+            'CMS' => [
+                'base' => [
+                    'baz' => 'foo',
+                    'foo' => 'baz',
+                    'another' => [
+                        'foo' => 'baz',
+                    ],
+                ],
+            ],
+            'FOO' => 'baz',
+        ];
+
+        self::assertSame($expected, $GLOBALS['TYPO3_CONF_VARS']);
+        self::assertSame('foo', getenv('PHP_CMS_BASE_BAZ'));
+        self::assertSame('baz', getenv('PHP_CMS_BASE_FOO'));
+        self::assertSame('baz', getenv('PHP_CMS_BASE_ANOTHER_FOO'));
+
+        // Restore initial behavior
+        putenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1');
+    }
+
+    /**
+     * @test
+     */
     public function loadSkipsEnvironmentVariableCreationIfConfigPathIsNotAvailable(): void
     {
         $this->unsetContextConfiguration();
         $this->unsetEnvFileConfiguration();
 
         (new System())->load();
-
         $expected = $this->backedUpEnvironmentVariables;
         unset($expected['ENV_FILE_PATH']);
 
         self::assertSame($expected, getenv());
     }
 
-    #[Test]
+    /**
+     * @test
+     */
     public function loadSkipsEnvironmentVariableCreationIfConfigPathIsNotIterable(): void
     {
         $this->unsetContextConfiguration();
         $this->unsetEnvFileConfiguration();
 
-        /* @phpstan-ignore offsetAccess.nonOffsetAccessible, offsetAccess.nonOffsetAccessible */
         $GLOBALS['TYPO3_CONF_VARS']['CMS']['base'] = false;
 
         (new System())->load();
-
         $expected = $this->backedUpEnvironmentVariables;
         unset($expected['ENV_FILE_PATH']);
 
         self::assertSame($expected, getenv());
     }
 
-    #[Test]
+    /**
+     * @test
+     */
     public function loadCachedData(): void
     {
         $cacheDir = Environment::getVarPath() . '/cache/data/typo3_config';
-
-        self::assertDirectoryDoesNotExist($cacheDir);
+        self::assertFalse(file_exists($cacheDir));
 
         (new System())->loadCached();
 
-        $cacheDir .= '/' . (Environment::getContext()->isProduction() ? 'prod' : 'dev');
-
+        $cacheDir .= ('/' . (Environment::getContext()->isProduction() ? 'prod' : 'dev'));
         self::assertDirectoryExists($cacheDir);
-
         $filesInDirectory = scandir($cacheDir);
-
         self::assertIsArray($filesInDirectory);
         self::assertCount(3, $filesInDirectory);
         self::assertSame(
@@ -189,37 +207,28 @@ final class SystemTest extends UnitTestCase
                     ],
                 ],
             ],
-            /* @phpstan-ignore offsetAccess.nonOffsetAccessible */
-            $GLOBALS['TYPO3_CONF_VARS']['CMS'] ?? null,
+            $GLOBALS['TYPO3_CONF_VARS']['CMS']
         );
     }
 
-    #[Test]
+    /**
+     * @test
+     */
     public function loadCachedDataWithoutFileReader(): void
     {
         $cacheDir = Environment::getVarPath() . '/cache/data/typo3_config';
-
-        self::assertDirectoryDoesNotExist($cacheDir);
+        self::assertFalse(file_exists($cacheDir));
 
         putenv('TYPO3__CMS__TEST=test');
         $_ENV['TYPO3__CMS__TEST'] = 'test';
-
         $this->unsetContextConfiguration();
         $this->unsetEnvFileConfiguration();
-
         (new System())->loadCached();
 
-        $cacheFile = sprintf(
-            '%s/%s/cached-config-%s.php',
-            $cacheDir,
-            Environment::getContext()->isProduction() ? 'prod' : 'dev',
-            md5(''),
-        );
-
-        self::assertFileExists($cacheFile);
-        /* @phpstan-ignore offsetAccess.nonOffsetAccessible */
-        self::assertSame(['TEST' => 'test'], $GLOBALS['TYPO3_CONF_VARS']['CMS'] ?? null);
-
+        $cacheDir .= '/' . (Environment::getContext()->isProduction() ? 'prod' : 'dev');
+        self::assertFileExists($cacheDir . '/cached-config-' . md5('') . '.php');
+        self::assertDirectoryExists($cacheDir);
+        self::assertSame(['TEST' => 'test'], $GLOBALS['TYPO3_CONF_VARS']['CMS']);
         $this->restoreEnvironmentVariables();
         $this->unsetEnvironmentVariablesConfiguration();
     }
@@ -233,12 +242,22 @@ final class SystemTest extends UnitTestCase
 
         $reflection = new \ReflectionObject($subject);
         $property = $reflection->getProperty('readers');
+        $property->setAccessible(true);
         $readers = $property->getValue($subject);
 
         self::assertIsArray($readers);
         self::assertContainsOnlyInstancesOf(ConfigReaderInterface::class, $readers);
 
         return $readers;
+    }
+
+    private function runWithSuppressedDeprecations(callable $test): void
+    {
+        set_error_handler(null, E_USER_DEPRECATED);
+
+        $test();
+
+        restore_error_handler();
     }
 
     protected function tearDown(): void
