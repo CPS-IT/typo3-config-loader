@@ -23,6 +23,7 @@ use Helhum\ConfigLoader\Reader\ConfigReaderInterface;
 use Helhum\ConfigLoader\Reader\EnvironmentReader;
 use Helhum\ConfigLoader\Reader\PhpFileReader;
 use Helhum\ConfigLoader\Reader\YamlFileReader;
+use TYPO3\CMS\Core\Core\ApplicationContext;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
@@ -77,6 +78,134 @@ final class SystemTest extends UnitTestCase
         self::assertCount(2, $actual);
         self::assertInstanceOf(PhpFileReader::class, $actual[0]);
         self::assertInstanceOf(EnvironmentReader::class, $actual[1]);
+    }
+
+    /**
+     * @test
+     */
+    public function constructorDoesNotTriggerDeprecationNoticeForUsageOfUnsafeSeparatorIfRunningInProductionContext(): void
+    {
+        $errorMessage = null;
+
+        // Switch to legacy (unsafe) key separator
+        putenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR');
+
+        // Simulate non-cli environment
+        Environment::initialize(
+            new ApplicationContext('Production'),
+            Environment::isCli(),
+            Environment::isComposerMode(),
+            Environment::getProjectPath(),
+            Environment::getPublicPath(),
+            Environment::getVarPath(),
+            Environment::getConfigPath(),
+            Environment::getCurrentScript(),
+            Environment::isWindows() ? 'WINDOWS' : 'UNIX'
+        );
+
+        \set_error_handler(
+            static function (int $errno, string $errstr) use (&$errorMessage) {
+                $errorMessage = $errstr;
+                return true;
+            },
+            E_USER_DEPRECATED
+        );
+
+        new System();
+
+        restore_error_handler();
+
+        self::assertNull($errorMessage);
+
+        // Restore initial behavior
+        putenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1');
+    }
+
+    /**
+     * @test
+     */
+    public function constructorDoesNotTriggerDeprecationNoticeForUsageOfUnsafeSeparatorIfNotRunningOnCli(): void
+    {
+        $errorMessage = null;
+
+        // Switch to legacy (unsafe) key separator
+        putenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR');
+
+        // Simulate non-cli environment
+        Environment::initialize(
+            Environment::getContext(),
+            false,
+            Environment::isComposerMode(),
+            Environment::getProjectPath(),
+            Environment::getPublicPath(),
+            Environment::getVarPath(),
+            Environment::getConfigPath(),
+            Environment::getCurrentScript(),
+            Environment::isWindows() ? 'WINDOWS' : 'UNIX'
+        );
+
+        \set_error_handler(
+            static function (int $errno, string $errstr) use (&$errorMessage) {
+                $errorMessage = $errstr;
+                return true;
+            },
+            E_USER_DEPRECATED
+        );
+
+        new System();
+
+        restore_error_handler();
+
+        self::assertNull($errorMessage);
+
+        // Restore initial behavior
+        putenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1');
+    }
+
+    /**
+     * @test
+     */
+    public function constructorTriggersDeprecationNoticeForUsageOfUnsafeSeparatorIfRunningOnCliAndNotInProductionContext(): void
+    {
+        $errorMessage = null;
+
+        // Switch to legacy (unsafe) key separator
+        putenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR');
+
+        // Simulate non-cli environment
+        Environment::initialize(
+            new ApplicationContext('Development'),
+            true,
+            Environment::isComposerMode(),
+            Environment::getProjectPath(),
+            Environment::getPublicPath(),
+            Environment::getVarPath(),
+            Environment::getConfigPath(),
+            Environment::getCurrentScript(),
+            Environment::isWindows() ? 'WINDOWS' : 'UNIX'
+        );
+
+        \set_error_handler(
+            static function (int $errno, string $errstr) use (&$errorMessage) {
+                $errorMessage = $errstr;
+                return true;
+            },
+            E_USER_DEPRECATED
+        );
+
+        new System();
+
+        restore_error_handler();
+
+        self::assertSame(
+            'Using an unsafe key separator for TYPO3_* environment variables is deprecated and will be ' .
+            'removed with cpsit/typo3-config-loader v1.0. Please switch to `__` as key separator and specify the ' .
+            'environment variable $TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1 to enable the new behavior.',
+            $errorMessage
+        );
+
+        // Restore initial behavior
+        putenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1');
     }
 
     /**
@@ -263,7 +392,7 @@ final class SystemTest extends UnitTestCase
 
     private function runWithSuppressedDeprecations(callable $test): void
     {
-        set_error_handler(null, E_USER_DEPRECATED);
+        \set_error_handler(null, E_USER_DEPRECATED);
 
         $test();
 
