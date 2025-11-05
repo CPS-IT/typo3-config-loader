@@ -83,7 +83,8 @@ characters).
 > key separator. This behavior is **deprecated** and will be removed in a future version
 > of the library. You are advised to set an additional environment variable
 > `TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1` as feature toggle to enable the new
-> behavior. Otherwise, a deprecation error will be logged.
+> behavior. Otherwise, a deprecation error will be logged (only outside of `Production`
+> context and only on the command-line).
 
 ## 💡 Custom loaders
 

@@ -302,12 +302,14 @@ class System implements CacheableConfigurationLoader
         if ($useSafeSeparator === 1) {
             $separator = '__';
         } else {
-            trigger_error(
-                'Using an unsafe key separator for TYPO3_* environment variables is deprecated and will be removed ' .
-                'with fr/typo3-config-loader v1.0. Please switch to `__` as key separator and specify the environment ' .
-                'variable $TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1 to enable the new behavior.',
-                E_USER_DEPRECATED
-            );
+            if (Environment::isCli() && !Environment::getContext()->isProduction()) {
+                trigger_error(
+                    'Using an unsafe key separator for TYPO3_* environment variables is deprecated and will be ' .
+                    'removed with cpsit/typo3-config-loader v1.0. Please switch to `__` as key separator and specify the ' .
+                    'environment variable $TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1 to enable the new behavior.',
+                    E_USER_DEPRECATED
+                );
+            }
 
             // Don't parse feature flag env variable
             unset($_ENV['TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR']);
