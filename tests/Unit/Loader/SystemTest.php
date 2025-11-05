@@ -116,9 +116,6 @@ final class SystemTest extends UnitTestCase
         restore_error_handler();
 
         self::assertNull($errorMessage);
-
-        // Restore initial behavior
-        putenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1');
     }
 
     /**
@@ -157,9 +154,6 @@ final class SystemTest extends UnitTestCase
         restore_error_handler();
 
         self::assertNull($errorMessage);
-
-        // Restore initial behavior
-        putenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1');
     }
 
     /**
@@ -203,9 +197,6 @@ final class SystemTest extends UnitTestCase
             'environment variable $TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1 to enable the new behavior.',
             $errorMessage
         );
-
-        // Restore initial behavior
-        putenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1');
     }
 
     /**
@@ -274,9 +265,6 @@ final class SystemTest extends UnitTestCase
         self::assertSame('foo', getenv('PHP_CMS_BASE_BAZ'));
         self::assertSame('baz', getenv('PHP_CMS_BASE_FOO'));
         self::assertSame('baz', getenv('PHP_CMS_BASE_ANOTHER_FOO'));
-
-        // Restore initial behavior
-        putenv('TYPO3_CONFIG_LOADER_USE_SAFE_SEPARATOR=1');
     }
 
     /**
