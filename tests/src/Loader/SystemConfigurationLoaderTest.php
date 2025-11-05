@@ -243,8 +243,6 @@ final class SystemConfigurationLoaderTest extends TestCase
         $result = $method->invoke($this->subject);
 
         self::assertSame($customPath, $result);
-
-        putenv('CONTEXT_CONFIGURATION_PATH');
     }
 
     /**

@@ -148,7 +148,16 @@ trait VirtualConfigurationTrait
 
     protected function restoreEnvironmentVariables(): void
     {
+        // Unset additional environment variables
         array_map(putenv(...), array_keys(array_diff_assoc(getenv(), $this->backedUpEnvironmentVariables)));
+
+        // Restore values of backend up environment variables
+        foreach ($this->backedUpEnvironmentVariables as $name => $value) {
+            if (\is_scalar($value)) {
+                putenv($name . '=' . $value);
+            }
+        }
+
         $_ENV = $this->backedUpEnvironmentVariables;
     }
 }
