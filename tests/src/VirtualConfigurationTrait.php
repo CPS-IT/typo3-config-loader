@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace CPSIT\Typo3ConfigLoader\Tests;
 
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use TYPO3\CMS\Core\Core\ApplicationContext;
 use TYPO3\CMS\Core\Core\Environment;
 
@@ -36,7 +36,8 @@ use TYPO3\CMS\Core\Core\Environment;
  */
 trait VirtualConfigurationTrait
 {
-    protected vfsStreamDirectory $rootPath;
+    protected Filesystem $filesystem;
+    protected string $rootPath;
     protected string $contextFilePath;
 
     /**
@@ -51,21 +52,31 @@ trait VirtualConfigurationTrait
 
     protected function initializeVirtualConfiguration(): void
     {
-        $this->rootPath = vfsStream::setup('fr-typo3-config-loader-tests');
+        $this->rootPath = Path::join(
+            sys_get_temp_dir(),
+            uniqid('fr-typo3-config-loader-tests-'),
+        );
         $this->contextFilePath = 'app/config/environment/Testing/FrTypo3ConfigLoader.php';
         /* @phpstan-ignore assign.propertyType */
         $this->backedUpConfiguration = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
         $this->backedUpEnvironmentVariables = array_merge(getenv(), $_ENV);
 
-        $GLOBALS['TYPO3_CONF_VARS'] = [];
+        $GLOBALS['TYPO3_CONF_VARS'] = [
+            'SYS' => [
+                // Required in order to make TYPO3 properly create directories
+                'folderCreateMask' => '2775',
+            ],
+        ];
     }
 
     protected function mockEnvFileConfiguration(): void
     {
-        $filename = vfsStream::newFile('env.yml')
-            ->withContent(file_get_contents(__DIR__ . '/Fixtures/env.yml'))
-            ->at($this->rootPath)
-            ->url();
+        $filename = Path::join($this->rootPath, 'env.yml');
+        $fileContents = file_get_contents(__DIR__ . '/Fixtures/env.yml');
+
+        self::assertIsString($fileContents);
+
+        $this->filesystem->dumpFile($filename, $fileContents);
 
         putenv('ENV_FILE_PATH=' . $filename);
     }
@@ -74,34 +85,24 @@ trait VirtualConfigurationTrait
     {
         $this->mockEnvironment();
 
-        $structure = [];
-        $lastComponent = &$structure;
+        $filename = Path::join($this->rootPath, $this->contextFilePath);
+        $fileContents = file_get_contents(__DIR__ . '/Fixtures/env.php');
 
-        foreach (str_getcsv($this->contextFilePath, '/', '"', '\\') as $pathComponent) {
-            $lastComponent[$pathComponent] = [];
-            $lastComponent = &$lastComponent[$pathComponent];
-        }
+        self::assertIsString($fileContents);
 
-        $lastComponent = file_get_contents(__DIR__ . '/Fixtures/env.php');
-        unset($lastComponent);
-
-        vfsStream::create($structure);
+        $this->filesystem->dumpFile($filename, $fileContents);
     }
 
     protected function mockEnvironment(): void
     {
-        $publicPath = vfsStream::newDirectory('public')->at($this->rootPath);
-        $varPath = vfsStream::newDirectory('var')->at($this->rootPath);
-        $configPath = vfsStream::newDirectory('config')->at($this->rootPath);
-
         Environment::initialize(
             new ApplicationContext('Testing/FrTypo3ConfigLoader'),
             true,
             false,
-            $this->rootPath->url(),
-            $publicPath->url(),
-            $varPath->url(),
-            $configPath->url(),
+            $this->rootPath,
+            Path::join($this->rootPath, 'public'),
+            Path::join($this->rootPath, 'var'),
+            Path::join($this->rootPath, 'config'),
             'index.php',
             'UNIX',
         );
@@ -138,7 +139,9 @@ trait VirtualConfigurationTrait
 
     protected function unsetContextConfiguration(): void
     {
-        unlink($this->rootPath->getChild($this->contextFilePath)->url());
+        $this->filesystem->remove(
+            Path::join($this->rootPath, $this->contextFilePath),
+        );
     }
 
     protected function restoreConfiguration(): void
