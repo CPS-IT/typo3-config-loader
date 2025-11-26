@@ -32,6 +32,7 @@ use Helhum\ConfigLoader\Reader\YamlFileReader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 use TYPO3\CMS\Core\Core\Environment;
 
 /**
@@ -49,6 +50,8 @@ final class SystemConfigurationLoaderTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->filesystem = new Filesystem();
+
         $this->initializeVirtualConfiguration();
         $this->mockEnvFileConfiguration();
         $this->mockContextConfiguration();
@@ -108,6 +111,9 @@ final class SystemConfigurationLoaderTest extends TestCase
         $this->subject->load();
 
         $expected = [
+            'SYS' => [
+                'folderCreateMask' => '2775',
+            ],
             'foo' => 'baz',
             'CMS' => [
                 'base' => [

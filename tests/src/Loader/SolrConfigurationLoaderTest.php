@@ -28,6 +28,7 @@ use CPSIT\Typo3ConfigLoader\Tests\VirtualConfigurationTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * SolrConfigurationLoaderTest.
@@ -44,6 +45,8 @@ final class SolrConfigurationLoaderTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->filesystem = new Filesystem();
+
         $this->initializeVirtualConfiguration();
 
         $this->subject = new SolrConfigurationLoader();
