@@ -3,7 +3,6 @@
 # TYPO3 config loader
 
 [![Coverage](https://img.shields.io/coverallsCoverage/github/CPS-IT/typo3-config-loader?logo=coveralls)](https://coveralls.io/github/CPS-IT/typo3-config-loader)
-[![Maintainability](https://qlty.sh/badges/825c9008-975f-4fcf-9039-a0c12ad07781/maintainability.svg)](https://qlty.sh/gh/CPS-IT/projects/typo3-config-loader)
 [![CGL](https://img.shields.io/github/actions/workflow/status/CPS-IT/typo3-config-loader/cgl.yaml?label=cgl&logo=github)](https://github.com/CPS-IT/typo3-config-loader/actions/workflows/cgl.yaml)
 [![Tests](https://img.shields.io/github/actions/workflow/status/CPS-IT/typo3-config-loader/tests.yaml?label=tests&logo=github)](https://github.com/CPS-IT/typo3-config-loader/actions/workflows/tests.yaml)
 [![TYPO3 support](https://img.shields.io/badge/TYPO3-12_%26_13-orange?logo=typo3)](https://get.typo3.org/)
