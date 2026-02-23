@@ -21,7 +21,7 @@ library.
 
 * Config loader for [system configuration](src/Loader/SystemConfigurationLoader.php)
 * Config loader for [EXT:solr](src/Loader/SolrConfigurationLoader.php)
-* Compatible with TYPO3 12.4 LTS, 13.4 LTS and 14.0
+* Compatible with TYPO3 12.4 LTS, 13.4 LTS and 14.1
 
 ## 🔥 Installation
 
