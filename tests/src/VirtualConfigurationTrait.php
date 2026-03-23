@@ -115,9 +115,9 @@ trait VirtualConfigurationTrait
             true,
             false,
             'http://typo3-testing.local/',
-            (string)\getcwd(),
-            \getcwd() . '/var',
-            \getcwd() . '/config',
+            (string)getcwd(),
+            getcwd() . '/var',
+            getcwd() . '/config',
             'index.php',
             'UNIX',
         );
@@ -152,11 +152,19 @@ trait VirtualConfigurationTrait
     protected function restoreEnvironmentVariables(): void
     {
         // Unset additional environment variables
-        array_map(putenv(...), array_keys(array_diff_assoc(getenv(), $this->backedUpEnvironmentVariables)));
+        array_map(
+            putenv(...),
+            array_keys(
+                array_diff_assoc(
+                    getenv(),
+                    array_filter($this->backedUpEnvironmentVariables, is_scalar(...)),
+                ),
+            ),
+        );
 
         // Restore values of backend up environment variables
         foreach ($this->backedUpEnvironmentVariables as $name => $value) {
-            if (\is_scalar($value)) {
+            if (is_scalar($value)) {
                 putenv($name . '=' . $value);
             }
         }
