@@ -72,7 +72,7 @@ file path within the `app/config/environment` directory. The default directory p
 overwritten with an environment variable `CONTEXT_CONFIGURATION_PATH`. Each file must return an
 array with additional system configuration values.
 
-**Example:**
+#### Example (default path)
 
 * TYPO3 context: `Development/Local`
 * File path: `app/config/environment/Development/Local.php`
@@ -89,6 +89,24 @@ return [
 ];
 ```
 
+#### Example (custom path)
+
+* TYPO3 context: `Development/Local`
+* Environment variable: `CONTEXT_CONFIGURATION_PATH=config/by-context`
+* File path: `config/by-context/Development/Local.php`
+
+**File contents:**
+
+```php
+# /var/www/html/config/by-context/Development/Local.php
+
+return [
+    'SYS' => [
+        'debug' => 1,
+    ],
+];
+```
+
 ### 2. Environment file reader
 
 The next reader in the priority chain for system configuration is the
@@ -96,7 +114,7 @@ The next reader in the priority chain for system configuration is the
 from a configured YAML file. The file path must be specified as environment variable
 `ENV_FILE_PATH`. If the variable is not present, this reader is skipped.
 
-**Example:**
+#### Example
 
 * Environment variable: `ENV_FILE_PATH=/var/www/html/env.yml`
 * File path: `/var/www/html/env.yml`
@@ -117,7 +135,7 @@ It is used to map environment variables to configuration values. Environment var
 must be prefixed by `TYPO3` and each configuration key must be separated by `__`
 (two underscore characters).
 
-**Example:**
+#### Example
 
 * Environment variable: `TYPO3__MAIL__transport_smtp_server`
 * Configuration path: `$GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport_smtp_server']`
