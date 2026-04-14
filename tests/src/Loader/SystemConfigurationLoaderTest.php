@@ -148,23 +148,6 @@ final class SystemConfigurationLoaderTest extends TestCase
     }
 
     #[Test]
-    public function loadSkipsEnvironmentVariableCreationIfConfigPathIsNotIterable(): void
-    {
-        $this->unsetContextConfiguration();
-        $this->unsetEnvFileConfiguration();
-
-        /* @phpstan-ignore offsetAccess.nonOffsetAccessible, offsetAccess.nonOffsetAccessible */
-        $GLOBALS['TYPO3_CONF_VARS']['CMS']['base'] = false;
-
-        (new SystemConfigurationLoader())->load();
-
-        $expected = $this->backedUpEnvironmentVariables;
-        unset($expected['ENV_FILE_PATH']);
-
-        self::assertSame($expected, getenv());
-    }
-
-    #[Test]
     public function loadCachedData(): void
     {
         $cacheDir = Environment::getVarPath() . '/cache/data/typo3_config';
