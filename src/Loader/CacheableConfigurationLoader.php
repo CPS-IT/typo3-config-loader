@@ -21,7 +21,7 @@ namespace CPSIT\Typo3ConfigLoader\Loader;
  * CacheableConfigurationLoader.
  *
  * @author Elias Häußler <e.haeussler@familie-redlich.de>
- * @license GPL-3.0-or-later
+ * @license GPL-2.0-or-later
  */
 interface CacheableConfigurationLoader extends ConfigurationLoader
 {

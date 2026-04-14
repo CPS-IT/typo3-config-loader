@@ -51,7 +51,7 @@ use TYPO3\CMS\Core\Utility\Exception\MissingArrayPathException;
  * PHP_SOLR_CORE_READ_1_EN: core_en
  *
  * @author Elias Häußler <e.haeussler@familie-redlich.de>
- * @license GPL-3.0-or-later
+ * @license GPL-2.0-or-later
  */
 final readonly class SolrConfigurationLoader implements ConfigurationLoader
 {

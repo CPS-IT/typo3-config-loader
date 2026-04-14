@@ -1,7 +1,7 @@
 {
 	"name": "cpsit/typo3-config-loader",
 	"description": "A loader for various TYPO3-related configuration, including system configuration and configuration for third-party extensions.",
-	"license": "GPL-3.0-or-later",
+	"license": "GPL-2.0-or-later",
 	"authors": [
 		{
 			"name": "Elias Häußler",
