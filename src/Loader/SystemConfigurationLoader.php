@@ -32,8 +32,6 @@ use Helhum\ConfigLoader\Reader\EnvironmentReader;
 use Helhum\ConfigLoader\Reader\PhpFileReader;
 use Helhum\ConfigLoader\Reader\YamlFileReader;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
-use TYPO3\CMS\Core\Utility\Exception\MissingArrayPathException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -64,8 +62,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * be prefixed by `TYPO3_` in order to be respected by this loader.
  *
  * All loaders provide configuration for `$GLOBALS['TYPO3_CONF_VARS']`. Additionally,
- * all configuration within {@see self::BASE_CONFIG_PATH} is transformed to
- * environment variables, prefixed by {@see self::ENV_PREFIX}.
+ * all configuration within `CMS` is transformed to environment variables, prefixed by
+ * {@see self::ENV_PREFIX}.
  *
  * Example configuration (YAML):
  *
@@ -86,9 +84,7 @@ final readonly class SystemConfigurationLoader implements CacheableConfiguration
 
     private const VAR_STORAGE_LOCATION_CACHED = 'cache/data/typo3_config';
     private const CONTEXT_CONFIGURATION_PATH = 'app/config/environment';
-    private const BASE_CONFIG_PATH = 'CMS/base';
     private const ENV_PREFIX = 'PHP_';
-    private const CONFIG_DELIMITER = '/';
     private const ENV_DELIMITER = '_';
 
     /**
@@ -160,7 +156,9 @@ final readonly class SystemConfigurationLoader implements CacheableConfiguration
         $GLOBALS['TYPO3_CONF_VARS'] = array_replace_recursive($globalConfig, $data);
 
         // Create CMS specific environment variables
-        $this->createEnvironmentVariables(self::BASE_CONFIG_PATH);
+        if (is_array($cmsConfig = $GLOBALS['TYPO3_CONF_VARS']['CMS'] ?? null)) {
+            $this->createEnvironmentVariables($cmsConfig, 'CMS');
+        }
     }
 
     /**
@@ -206,46 +204,24 @@ final readonly class SystemConfigurationLoader implements CacheableConfiguration
     }
 
     /**
-     * Recursively create environment variables from given config path.
+     * Recursively create environment variables from given config.
      *
      * Creates environment variables for all configuration available within the given
-     * config path. All path components of the resulting config path are used as
-     * components of the resulting environment variable, e.g. `CMS/base/foo/baz` is
-     * resulting in `CMS_BASE_FOO_BAZ`.
+     * config. All path components of the resulting config are used as components of the
+     * resulting environment variable, e.g. `CMS/base/foo` is resulting in `CMS_BASE_FOO`.
      *
-     * @param string $configPath Path to the configuration to be transformed to environment variables
+     * @param array<mixed> $config Config array to transform
+     * @param non-empty-string $fullPath Full current configuration path
      */
-    private function createEnvironmentVariables(string $configPath): void
+    private function createEnvironmentVariables(array $config, string $fullPath): void
     {
-        $globalConfig = $GLOBALS['TYPO3_CONF_VARS'] ?? null;
-
-        // Early return if global config is invalid
-        if (!\is_array($globalConfig)) {
-            return;
-        }
-
-        try {
-            $config = ArrayUtility::getValueByPath($globalConfig, $configPath);
-        } catch (MissingArrayPathException) {
-            // Early return if configuration cannot be read
-            return;
-        }
-
-        // $config is expected to be iterable, otherwise it cannot be traversed
-        if (!is_iterable($config)) {
-            return;
-        }
-
-        // Resolve all available configuration recursively and transform it to environment variables
         foreach ($config as $key => $value) {
-            if (!\is_scalar($key)) {
-                continue;
-            }
+            $currentPath = $fullPath . self::ENV_DELIMITER . $key;
 
             if (is_array($value)) {
-                $this->createEnvironmentVariables($configPath . self::CONFIG_DELIMITER . $key);
-            } elseif (\is_scalar($value)) {
-                $envKey = strtoupper(str_replace(self::CONFIG_DELIMITER, self::ENV_DELIMITER, $configPath) . self::ENV_DELIMITER . $key);
+                $this->createEnvironmentVariables($value, $currentPath);
+            } elseif (is_scalar($value)) {
+                $envKey = strtoupper($currentPath);
                 $this->createEnvironmentVariable($envKey, (string)$value);
             }
         }
