@@ -21,7 +21,7 @@ namespace CPSIT\Typo3ConfigLoader\Loader;
  * Base configuration loader.
  *
  * @author Elias Häußler <e.haeussler@familie-redlich.de>
- * @license GPL-3.0-or-later
+ * @license GPL-2.0-or-later
  */
 interface ConfigurationLoader
 {

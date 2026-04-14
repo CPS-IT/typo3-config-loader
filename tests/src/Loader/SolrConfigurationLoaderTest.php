@@ -28,7 +28,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * SolrConfigurationLoaderTest.
  *
  * @author Elias Häußler <e.haeussler@familie-redlich.de>
- * @license GPL-3.0-or-later
+ * @license GPL-2.0-or-later
  */
 #[CoversClass(SolrConfigurationLoader::class)]
 final class SolrConfigurationLoaderTest extends TestCase

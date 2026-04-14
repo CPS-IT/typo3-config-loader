@@ -70,7 +70,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * PHP_CMS_BASE_FOO: baz
  *
  * @author Elias Häußler <e.haeussler@familie-redlich.de>
- * @license GPL-3.0-or-later
+ * @license GPL-2.0-or-later
  */
 final readonly class SystemConfigurationLoader implements CacheableConfigurationLoader
 {
