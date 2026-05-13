@@ -5,7 +5,7 @@
 [![Coverage](https://img.shields.io/coverallsCoverage/github/CPS-IT/typo3-config-loader?logo=coveralls)](https://coveralls.io/github/CPS-IT/typo3-config-loader)
 [![CGL](https://img.shields.io/github/actions/workflow/status/CPS-IT/typo3-config-loader/cgl.yaml?label=cgl&logo=github)](https://github.com/CPS-IT/typo3-config-loader/actions/workflows/cgl.yaml)
 [![Tests](https://img.shields.io/github/actions/workflow/status/CPS-IT/typo3-config-loader/tests.yaml?label=tests&logo=github)](https://github.com/CPS-IT/typo3-config-loader/actions/workflows/tests.yaml)
-[![TYPO3 support](https://img.shields.io/badge/TYPO3-12,_13_%26_14-orange?logo=typo3)](https://get.typo3.org/)
+[![TYPO3 support](https://img.shields.io/badge/TYPO3-13_%26_14-orange?logo=typo3)](https://get.typo3.org/)
 
 📦&nbsp;[Packagist](https://packagist.org/packages/cpsit/typo3-config-loader) |
 💾&nbsp;[Repository](https://github.com/CPS-IT/typo3-config-loader) |
@@ -21,7 +21,7 @@ library.
 
 * Config loader for [system configuration](src/Loader/SystemConfigurationLoader.php)
 * Config loader for [EXT:solr](src/Loader/SolrConfigurationLoader.php)
-* Compatible with TYPO3 12.4 LTS, 13.4 LTS and 14.3 LTS
+* Compatible with TYPO3 13.4 LTS and 14.3 LTS
 
 ## 🔥 Installation
 
