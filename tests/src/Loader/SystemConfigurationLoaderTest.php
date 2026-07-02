@@ -77,6 +77,20 @@ final class SystemConfigurationLoaderTest extends TestCase
     }
 
     #[Test]
+    public function constructorDefaultsToCmsEnvironmentSection(): void
+    {
+        self::assertSame(['CMS'], $this->getEnvironmentSectionsFromSubject($this->subject));
+    }
+
+    #[Test]
+    public function constructorAcceptsCustomEnvironmentSections(): void
+    {
+        $subject = new SystemConfigurationLoader(['CMS', 'API', 'APP']);
+
+        self::assertSame(['CMS', 'API', 'APP'], $this->getEnvironmentSectionsFromSubject($subject));
+    }
+
+    #[Test]
     public function loadDoesNothingIfGlobalConfigIsInvalid(): void
     {
         $this->unsetEnvFileConfiguration();
@@ -125,6 +139,24 @@ final class SystemConfigurationLoaderTest extends TestCase
         self::assertSame('foo', getenv('PHP_CMS_BASE_BAZ'));
         self::assertSame('baz', getenv('PHP_CMS_BASE_FOO'));
         self::assertSame('baz', getenv('PHP_CMS_BASE_ANOTHER_FOO'));
+    }
+
+    #[Test]
+    public function loadCreatesEnvironmentVariablesForAllConfiguredSections(): void
+    {
+        $this->unsetEnvFileConfiguration();
+        $this->unsetContextConfiguration();
+
+        /* @phpstan-ignore offsetAccess.nonOffsetAccessible */
+        $GLOBALS['TYPO3_CONF_VARS']['API'] = [
+            'base' => [
+                '1' => 'https://api.example.com/',
+            ],
+        ];
+
+        (new SystemConfigurationLoader(['CMS', 'API', 'MISSING']))->load();
+
+        self::assertSame('https://api.example.com/', getenv('PHP_API_BASE_1'));
     }
 
     #[Test]
@@ -243,6 +275,25 @@ final class SystemConfigurationLoaderTest extends TestCase
         self::assertContainsOnlyInstancesOf(ConfigReaderInterface::class, $readers);
 
         return $readers;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getEnvironmentSectionsFromSubject(SystemConfigurationLoader $subject): array
+    {
+        $reflection = new \ReflectionObject($subject);
+        $property = $reflection->getProperty('environmentSections');
+        $environmentSections = $property->getValue($subject);
+
+        self::assertIsArray($environmentSections);
+
+        foreach ($environmentSections as $section) {
+            self::assertIsString($section);
+        }
+
+        /** @var string[] $environmentSections */
+        return $environmentSections;
     }
 
     protected function tearDown(): void
