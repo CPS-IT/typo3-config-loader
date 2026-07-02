@@ -89,19 +89,13 @@ final readonly class SystemConfigurationLoader implements CacheableConfiguration
     private array $readers;
 
     /**
-     * @var non-empty-string[]
-     */
-    private array $environmentSections;
-
-    /**
      * @param non-empty-string[] $environmentSections Top-level `$GLOBALS['TYPO3_CONF_VARS']`
      *                                                 sections that are transformed to
      *                                                 environment variables, defaults to `CMS`
      */
-    public function __construct(array $environmentSections = self::DEFAULT_ENVIRONMENT_SECTIONS)
+    public function __construct(private array $environmentSections = self::DEFAULT_ENVIRONMENT_SECTIONS)
     {
         $this->readers = $this->initializeReaders();
-        $this->environmentSections = $environmentSections;
     }
 
     /**
