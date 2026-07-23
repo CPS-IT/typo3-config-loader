@@ -57,7 +57,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * All loaders provide configuration for `$GLOBALS['TYPO3_CONF_VARS']`. Additionally,
  * all configuration within `CMS` is transformed to environment variables, prefixed by
- * {@see self::ENV_PREFIX}.
+ * {@see self::ENV_PREFIX}. Additional top-level sections can be transformed the same
+ * way by passing them to {@see self::__construct()}.
  *
  * Example configuration (YAML):
  *
@@ -80,13 +81,19 @@ final readonly class SystemConfigurationLoader implements CacheableConfiguration
     private const CONTEXT_CONFIGURATION_PATH = 'app/config/environment';
     private const ENV_PREFIX = 'PHP_';
     private const ENV_DELIMITER = '_';
+    private const DEFAULT_ENVIRONMENT_SECTIONS = ['CMS'];
 
     /**
      * @var ConfigReaderInterface[]
      */
     private array $readers;
 
-    public function __construct()
+    /**
+     * @param non-empty-string[] $environmentSections Top-level `$GLOBALS['TYPO3_CONF_VARS']`
+     *                                                 sections that are transformed to
+     *                                                 environment variables, defaults to `CMS`
+     */
+    public function __construct(private array $environmentSections = self::DEFAULT_ENVIRONMENT_SECTIONS)
     {
         $this->readers = $this->initializeReaders();
     }
@@ -149,9 +156,11 @@ final readonly class SystemConfigurationLoader implements CacheableConfiguration
 
         $GLOBALS['TYPO3_CONF_VARS'] = array_replace_recursive($globalConfig, $data);
 
-        // Create CMS specific environment variables
-        if (is_array($cmsConfig = $GLOBALS['TYPO3_CONF_VARS']['CMS'] ?? null)) {
-            $this->createEnvironmentVariables($cmsConfig, 'CMS');
+        // Create environment variables for all configured sections
+        foreach ($this->environmentSections as $section) {
+            if (is_array($sectionConfig = $GLOBALS['TYPO3_CONF_VARS'][$section] ?? null)) {
+                $this->createEnvironmentVariables($sectionConfig, $section);
+            }
         }
     }
 

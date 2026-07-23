@@ -140,6 +140,26 @@ must be prefixed by `TYPO3` and each configuration key must be separated by `__`
 * Environment variable: `TYPO3__MAIL__transport_smtp_server`
 * Configuration path: `$GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport_smtp_server']`
 
+## Bridging configuration back to environment variables
+
+Once all readers are merged into `$GLOBALS['TYPO3_CONF_VARS']`, the `CMS` section is
+transformed back into environment variables, prefixed by `PHP_`, e.g. for use in
+`Configuration/Services.yaml` via `%env(PHP_CMS_BASE_1)%`.
+
+Additional top-level sections can be bridged the same way by passing them to
+`SystemConfigurationLoader::__construct()`:
+
+```php
+$systemConfigLoader = new CPSIT\Typo3ConfigLoader\Loader\SystemConfigurationLoader(['CMS', 'API', 'APP']);
+$systemConfigLoader->loadCached();
+```
+
+> [!WARNING]
+> Only bridge sections that are safe to expose as environment variables. Environment
+> variables are readable through `phpinfo()`, exception/log dumps of `$_ENV`, child
+> process inheritance, and `docker inspect`. Do not bridge sections that may contain
+> secrets, e.g. `DB`, `BE`, or extension configuration holding API keys.
+
 ## 💡 Custom loaders
 
 In case this library does not fulfill all your requirements, you are free to extend
