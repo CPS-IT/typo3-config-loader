@@ -150,7 +150,11 @@ Additional top-level sections can be bridged the same way by passing them to
 `SystemConfigurationLoader::__construct()`:
 
 ```php
-$systemConfigLoader = new CPSIT\Typo3ConfigLoader\Loader\SystemConfigurationLoader(['CMS', 'API', 'APP']);
+$systemConfigLoader = new CPSIT\Typo3ConfigLoader\Loader\SystemConfigurationLoader([
+    'CMS',
+    'API',
+    'APP',
+]);
 $systemConfigLoader->loadCached();
 ```
 
