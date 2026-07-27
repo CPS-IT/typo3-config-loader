@@ -150,7 +150,7 @@ final readonly class SystemConfigurationLoader implements CacheableConfiguration
         $globalConfig = $GLOBALS['TYPO3_CONF_VARS'] ?? null;
 
         // Early return if global config is invalid
-        if (!\is_array($globalConfig)) {
+        if (!is_array($globalConfig)) {
             return;
         }
 
