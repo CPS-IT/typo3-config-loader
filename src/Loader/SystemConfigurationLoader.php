@@ -158,6 +158,7 @@ final readonly class SystemConfigurationLoader implements CacheableConfiguration
 
         // Create environment variables for all configured sections
         foreach ($this->environmentSections as $section) {
+            /* @phpstan-ignore offsetAccess.nonOffsetAccessible */
             if (is_array($sectionConfig = $GLOBALS['TYPO3_CONF_VARS'][$section] ?? null)) {
                 $this->createEnvironmentVariables($sectionConfig, $section);
             }
