@@ -73,7 +73,7 @@ final readonly class SolrConfigurationLoader implements ConfigurationLoader
         $globalConfig = $GLOBALS['TYPO3_CONF_VARS'] ?? null;
 
         // Early return if global configuration is invalid
-        if (!\is_array($globalConfig)) {
+        if (!is_array($globalConfig)) {
             return;
         }
 
@@ -85,7 +85,7 @@ final readonly class SolrConfigurationLoader implements ConfigurationLoader
         }
 
         // Early return if Solr configuration is invalid
-        if (!\is_array($solrConfig)) {
+        if (!is_array($solrConfig)) {
             return;
         }
 
@@ -106,13 +106,13 @@ final readonly class SolrConfigurationLoader implements ConfigurationLoader
         $solrRootPaths = $solrConfig['path'] ?? null;
 
         // Early return if Solr root path configuration is invalid
-        if (!\is_array($solrRootPaths)) {
+        if (!is_array($solrRootPaths)) {
             return;
         }
 
         // Map site- and language-specific configuration to environment variables
         foreach ($solrRootPaths as $rootPageId => $languages) {
-            if (!\is_array($languages)) {
+            if (!is_array($languages)) {
                 continue;
             }
 

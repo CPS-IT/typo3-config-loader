@@ -38,7 +38,7 @@ final class EnvironmentCreatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->subject = new class () {
+        $this->subject = new class {
             use EnvironmentCreator;
 
             protected function getEnvironmentPrefix(): string
