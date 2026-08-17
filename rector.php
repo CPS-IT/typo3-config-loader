@@ -16,20 +16,12 @@ declare(strict_types=1);
  */
 
 use Rector\Config\RectorConfig;
-use Rector\PHPUnit\Set\PHPUnitSetList;
-use Rector\Set\ValueObject\LevelSetList;
-use Rector\ValueObject\PhpVersion;
 
-return static function (RectorConfig $rectorConfig): void {
-    $rectorConfig->paths([
+return RectorConfig::configure()
+    ->withPaths([
         __DIR__ . '/src',
         __DIR__ . '/tests',
-    ]);
-
-    $rectorConfig->sets([
-        LevelSetList::UP_TO_PHP_82,
-        PHPUnitSetList::PHPUNIT_100,
-    ]);
-
-    $rectorConfig->phpVersion(PhpVersion::PHP_82);
-};
+    ])
+    ->withPhpSets(php82: true)
+    ->withComposerBased(phpunit: true)
+;
